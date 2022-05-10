@@ -1,0 +1,109 @@
+Command chạy snort
+cd C:\Snort\bin
+snort -i 1 -c C:\Snort\etc\snort.conf -A console > C:\Snort\log\(tên file .txt)
+
+
+Bắt các gói tin
+alert icmp any any -> any any (msg:"Scanning ICMP"; sid:1000001;)
+alert udp any any -> any any (msg:"Scanning UDP"; sid:1000002;)
+alert tcp any any -> any any (msg:"Scanning TCP"; sid:1000003;)
+#11 Loại DDoS
+1. SYN-flood
+Snort rule: alert tcp !$HOME_NET any -> $HOME_NET 80 (flags: S; 
+msg: "Possible DDoS TCP attack"; flow: stateless; 
+detection_filter: track by_dst, count 150000, seconds 60; 
+sid:1000004; rev:001;)
+
+2. Land attack
+Snort rule:
+alert tcp any any -> $HOME_NET any (sameip; 
+msg:"LAND attack"; sid:1000005; rev:001;)
+
+3. Mail bomb attack
+Snort rule:
+alert tcp any any - $SMTP_SERVER 25 (msg: "Possible 
+Mail Bomb attack"; flags:A+; flow:established; 
+detection_filter: track by_dst, count 60000, seconds 60; 
+sid:1000006; rev:001;)
+
+4. HTTP flooding
+Snort rule:
+alert tcp !$HOME_NET any -> $HOME_NET 80 (flags:S; 
+msg:"Possible http flood attack"; flow:established; 
+content:"GET"; nocase; http_method; detection_filter: track 
+by_dst, count 90000, seconds 60; sid:1000007; rev:001;)
+
+5. TCP Reset Attack
+Snort rule:
+alert tcp any any -> $HOME_NET 80 (flags:R; 
+msg:"Possible DDoS TCP attack"; flow:stateless; 
+sid:1000008; rev:001;)
+
+6. Christmas tree attack
+Snort rule:
+alert tcp !$HOME_NET any -> $HOME_NET 80 
+(flags:FPU; msg:"Possible christmas tree DoS attack"; 
+flow:stateless; sid:1000009; rev:001;)
+
+7.UDP Flood
+Snort rule:
+alert udp !$HOME_NET any -> $HOME_NET !53 (msg: 
+"UDP-FLOOD detected"; flow: stateless; detection_filter: 
+track by_dst, count 90000, seconds 60; sid:1000010; 
+rev:001;)
+
+8. DNS Flood
+Snort rule:
+alert udp !$HOME_NET any -> $HOME_NET 53 
+(msg:"DNS FLOOD"; detection_filter: track by_dst, count 
+60000, seconds 60; sid:10000011; rev:001;)
+
+9. ICMP Flood
+Snort rule:
+alert icmp !$HOME_NET any -> $HOME_NET any 
+(msg:"ICMP-FLOOD"; itype:8; detection_filter: track 
+by_dst, count 90000, seconds 60; sid:1000012; rev:001;)
+
+10.Ping of death
+Snort rule:
+alert icmp !$HOME_NET any -> $HOME_NET any 
+(msg:"ping of death detected"; dsize: >65535; itype: 8; 
+icode:0; sid:1000013; rev:001;
+
+11. Smurf Attack
+Snort rule:
+alert icmp any any -> 192.168.200.150 any (msg:"Smurf 
+Attack"; itype:0; detection_filter: track by_dst, count 50000, 
+seconds 60; sid:1000014; rev:001;)
+
+alert icmp any any -> 192.168.200.100 any (msg:"Smurf 
+Attack"; itype:0; detection_filter: track by_dst, count 50000, 
+seconds 60; sid:1000015; rev:001;)
+
+alert icmp any any -> 192.168.200.101 any (msg:"Smurf 
+Attack"; itype:0; detection_filter: track by_dst, count 50000, 
+seconds 60; sid:1000016; rev:001;)
+
+====================================================================
+4 loại Port Scan attacks
+1) Ack scan
+Snort rule:
+alert tcp any any -> $HOME_NET any (flags: A; ack: 0; 
+msg:"ACK Scan Detected"; sid:1000017; rev:001;)
+
+2) FIN scan
+Snort rule:
+alert tcp !$HOME_NET any -> $HOME_NET any ( 
+flags:SF; msg:"FIN scan"; flow: stateless; sid:1000018; 
+rev:001;)
+
+3) Null scan
+Snort rule:
+alert tcp !$HOME_NET any -> $HOME_NET any (flags:0; 
+msg:"Null scan"; flow:stateless; sid:1000019; rev:001;)
+
+4)FTP bounce scan
+Snort rule:
+alert tcp !$HOME_NET any -> $HOME_NET 21 
+(msg:"FTP Bounce scan"; content:”PORT”; nocase ;
+ftpbounce; sid:1000020; rev:001;
